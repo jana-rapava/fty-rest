@@ -197,7 +197,7 @@ db_reply <std::map <uint32_t, std::string> >
         ret.status        = 0;
         ret.errtype       = DB_ERR;
         ret.errsubtype    = DB_ERROR_INTERNAL;
-        ret.msg           = TRANSLATE_ME("Unsupported type of the elemnts");
+        ret.msg           = TRANSLATE_ME("Unsupported type of the elements");
         log_error ("%s", ret.msg.c_str());
         // TODO need to have some more precise list of types, so we don't have to change anything here,
         // if something was changed
@@ -211,7 +211,7 @@ db_reply <std::map <uint32_t, std::string> >
             ret.status        = 0;
             ret.errtype       = DB_ERR;
             ret.errsubtype    = DB_ERROR_INTERNAL;
-            ret.msg           = TRANSLATE_ME("Unsupported subtype of the elemnts");
+            ret.msg           = TRANSLATE_ME("Unsupported subtype of the elements");
             log_error ("%s", ret.msg.c_str());
             // TODO need to have some more precise list of types, so we don't have to change anything here,
             // if something was changed
@@ -286,7 +286,7 @@ db_reply_t
             ret.status        = 0;
             ret.errtype       = basic_info.errsubtype;
             ret.errsubtype    = DB_ERROR_DELETEFAIL;
-            ret.msg           = TRANSLATE_ME("a logical_asset (sensor) refere it");
+            ret.msg           = TRANSLATE_ME("a logical_asset (sensor) refers to it");
             log_warning ("%s", ret.msg.c_str());
             LOG_END;
             return ret;
