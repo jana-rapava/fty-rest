@@ -68,7 +68,7 @@ if(!checked_access_token.empty()) {
         user.uid (uid);
         user.gid (gid);
         user.login (user_name);
-        free (user_name); user_name = NULL;
+        delete[] user_name; user_name = NULL;
     } else {
         http_die("not-authorized", "");
     }
