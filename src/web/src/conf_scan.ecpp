@@ -295,7 +295,7 @@ UserInfo user;
     }
     else
     if (rv == -4) {
-        std::string err = TRANSLATE_ME ("<range>");
+        std::string err = TRANSLATE_ME ("range");
         http_die ("request-param-required", err.c_str ());
     }
     else

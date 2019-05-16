@@ -158,7 +158,7 @@ UserInfo user;
     std::string json = request.getBody ();
 
     if (json.empty ()) {
-        std::string err =  TRANSLATE_ME ("<JSON object with keys part_number, manufacturer, type, normal_state, gpx_direction, gpx_power_source, alarm_message, alarm_severity>");
+        std::string err =  TRANSLATE_ME ("non-empty JSON");
         http_die ("request-param-required", err.c_str ());
     }
 
@@ -179,7 +179,7 @@ UserInfo user;
     }
     else
     if (rv == -4) {
-        std::string err = TRANSLATE_ME ("<JSON object with keys part_number, manufacturer, type, normal_state, gpx_direction, gpx_power_source, alarm_message, alarm_severity>");
+        std::string err = TRANSLATE_ME ("Required fields are part_number, manufacturer, type, normal_state, gpx_direction, gpx_power_source, alarm_message and alarm_severity");
         http_die ("request-param-required", err.c_str ());
     }
     else

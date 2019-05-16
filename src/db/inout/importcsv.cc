@@ -793,7 +793,7 @@ static std::pair<db_a_elmnt_t, persist::asset_operation>
             parent_id = ret.item.id;
         else {
             if (ret.errsubtype == DB_ERROR_NOTFOUND) {
-                std::string expected = TRANSLATE_ME ("<existing asset name>");
+                std::string expected = TRANSLATE_ME ("existing asset name");
                 bios_throw("request-param-bad", "location", location.c_str(), expected.c_str ());
             }
             else {
@@ -1445,8 +1445,8 @@ void
         std::string msg{"column '" + m + "' is missing, import is aborted"};
         log_error("%s", msg.c_str());
         LOG_END;
-        std::string msg_received = TRANSLATE_ME ("<missing column '%s'>", m.c_str ());
-        std::string msg_expected = TRANSLATE_ME ("<column '%s' is present in csv>", m.c_str ());
+        std::string msg_received = TRANSLATE_ME ("CSV missing column '%s'", m.c_str ());
+        std::string msg_expected = TRANSLATE_ME ("CSV containing column '%s'", m.c_str ());
         bios_throw("request-param-bad", m.c_str(), msg_received.c_str(), msg_expected.c_str());
     }
 

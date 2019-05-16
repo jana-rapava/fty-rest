@@ -165,7 +165,7 @@ UserInfo user;
         if (request.getMethod() == "POST")
         {
             if (request.getBody().empty ()) {
-                std::string msg = std::string (TRANSLATE_ME ("Expected json document")) + "  { \"service_name\" : \"<service_name>\" }." + std::string (TRANSLATE_ME (" Received empty request document."));
+                std::string msg = std::string (TRANSLATE_ME ("Expected json document")) + "  { \"service_name\" : \"<service_name>\" }." + std::string (TRANSLATE_ME ("Received empty request document."));
                 http_die ("bad-request-document", msg.c_str ());
             }
             try {

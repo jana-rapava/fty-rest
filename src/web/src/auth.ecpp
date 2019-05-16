@@ -126,16 +126,17 @@ std::string checked_token;
     }
     log_info ("request POST oauth2: username %s, grant_type %s", checked_username.c_str (), checked_grant_type.c_str ());
 
-    std::string received = TRANSLATE_ME ("<invalid user or password>");
-    std::string expected = TRANSLATE_ME ("<valid user and password>");
+    std::string params = TRANSLATE_ME ("username or password");
+    std::string received = TRANSLATE_ME ("invalid user or password");
+    std::string expected = TRANSLATE_ME ("valid user and password");
     if (checked_username == BIOS_SCRIPT_USER && request.getPeerIp() != "127.0.0.1") {
         log_error ("request POST oauth2: username %s, grant_type %s authentication FAILED", checked_username.c_str (), checked_grant_type.c_str ());
-        http_die ("request-param-bad", "(user|passwd)", received.c_str (), expected.c_str ());
+        http_die ("request-param-bad", params.c_str (), received.c_str (), expected.c_str ());
     }
 
     if ( !authenticate(checked_username.c_str(), checked_password.c_str()) ) {
         log_error ("request POST oauth2: username %s, grant_type %s authentication FAILED", checked_username.c_str (), checked_grant_type.c_str ());
-        http_die ("request-param-bad", "(user|passwd)", received.c_str (), expected.c_str ());
+        http_die ("request-param-bad", params.c_str (), received.c_str (), expected.c_str ());
     }
     std::string access_token;
     long int expires_in;
