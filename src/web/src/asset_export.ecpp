@@ -24,10 +24,12 @@
  */
  #><%pre>
 #include <string>
+#include <regex>
 #include <string.h>
 #include <time.h>
 #include <fty_common_rest_helpers.h>
 #include <fty_common_macros.h>
+#include <fty_common_db_asset.h>
 #include "src/db/inout.h"
 #include "shared/utils.h"
 </%pre>
@@ -81,10 +83,16 @@ bool database_ready;
         *c = '-';
     }
 
-    if (!dc.empty())
-        reply.setHeader(tnt::httpheader::contentDisposition, "attachment; filename=\"asset_export_" + dc + "_" + std::string{buf} + ".csv\"");
-    else
+    if (!dc.empty()) {
+        std::string dc_ename;
+        DBAssets::name_to_extname (dc, dc_ename);
+        //escape special characters
+        dc_ename = std::regex_replace(dc_ename, std::regex("( |\t)"), "_");
+        reply.setHeader(tnt::httpheader::contentDisposition, "attachment; filename=\"asset_export_" + dc_ename + "_" + std::string{buf} + ".csv\"");
+    }
+    else {
         reply.setHeader(tnt::httpheader::contentDisposition, "attachment; filename=\"asset_export" + std::string{buf} + ".csv\"");
+    }
 
     try {
         persist::export_asset_csv(reply.out(), dc_id);
