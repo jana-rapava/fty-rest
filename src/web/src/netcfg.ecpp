@@ -96,7 +96,8 @@ if(rex_ncfg.match(request.getUrl())) {
             out += "\"" + iface + "\",";
         }
     }
-    out [out.size() - 1] = ' ';
+    // remove trailing comma
+    out.pop_back ();
 </%cpp>
 { "netcfgs": [ <$$ out $> ] }
 <%cpp>
