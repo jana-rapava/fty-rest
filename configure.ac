@@ -1690,6 +1690,67 @@ dnl END of PKG_CHECK_MODULES and/or direct tests for libfty_shm
 dnl END of enabled attempts to search for libfty_shm
 
 
+was_fty_asset_activator_check_lib_detected=no
+
+search_libfty_asset_activator="yes"
+
+AC_ARG_WITH([libfty_asset_activator],
+    [
+        AS_HELP_STRING([--with-libfty_asset_activator],
+        [yes or no. Optionally specify libfty_asset_activator prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
+    ],
+    [
+        search_libfty_asset_activator="yes"
+    ],
+    [
+        search_libfty_asset_activator="yes"
+    ])
+AS_CASE([x"${with_libfty_asset_activator}"],
+    [xyes], [search_libfty_asset_activator="yes"],
+    [xno],  [search_libfty_asset_activator="no"])
+
+dnl We do not abort right now, because the maintainer/developer may have
+dnl something particular in mind, e.g. to build just parts of a project.
+AS_IF([test x"${search_libfty_asset_activator}" = xno],
+    [AC_MSG_WARN([Required dependency on fty_asset_activator was explicitly disabled during configuration by '--with-libfty_asset_activator=no'; subsequent full build of fty-rest may fail])])
+
+AS_IF([test x"${search_libfty_asset_activator}" = xyes], [
+    # Archive previously detected and supplied flags
+    PRE_SEARCH_CFLAGS="${CFLAGS}"
+    PRE_SEARCH_LIBS="${LIBS}"
+
+    found_pkgconfig=""
+    PKG_CHECK_MODULES([fty_asset_activator], [libfty_asset_activator >= 0.0.0],
+    [
+        was_fty_asset_activator_check_lib_detected=pkgcfg
+        found_pkgconfig="libfty_asset_activator"
+    ],
+    [
+        AC_MSG_WARN([Attribute 'test' is not set on zproject dependency 'fty-asset-activator' - please ensure it is set])
+    ])
+
+dnl END of PKG_CHECK_MODULES and/or direct tests for libfty_asset_activator
+    AS_CASE(["x${was_fty_asset_activator_check_lib_detected}"],
+        [xpkgcfg], [
+                PKGCFG_NAMES_PRIVATE="$PKGCFG_NAMES_PRIVATE ${found_pkgconfig}"
+                CFLAGS="${fty_asset_activator_CFLAGS} ${CFLAGS}"
+                LIBS="${fty_asset_activator_LIBS} ${LIBS}"
+            ],
+        [xyes], [
+                CFLAGS="${fty_asset_activator_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${fty_asset_activator_synthetic_libs} ${LDFLAGS}"
+                LIBS="${fty_asset_activator_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([fty_asset_activator_CFLAGS],[${fty_asset_activator_synthetic_cflags}])
+                AC_SUBST([fty_asset_activator_LIBS],[${fty_asset_activator_synthetic_libs}])
+            ],
+        [xno], [
+            AC_MSG_ERROR([Cannot find pkg-config metadata for libfty_asset_activator 0.0.0 or higher])
+    ])
+])
+dnl END of enabled attempts to search for libfty_asset_activator
+
+
 CFLAGS="${PREVIOUS_CFLAGS}"
 LIBS="${PREVIOUS_LIBS}"
 
@@ -1966,7 +2027,16 @@ AS_IF([test "x$enable_Werror" = "xyes" || test "x$enable_Werror" = "xauto"],
 # One of big missing features in gcc-4.8 was std::regex support fixed in 4.9
 # Testing code from https://stackoverflow.com/a/41186162/4715872
 # caveats apply (use of unguaranteed private macros)
+AC_ARG_ENABLE([gcc-std-regex],
+    AS_HELP_STRING([--enable-gcc-std-regex],
+        [Check for std::regex support if compiler is GCC, assuming it means satisfactory level of C++11 there [default=yes]]),
+    [enable_gcc_std_regex=$enableval],
+    [enable_gcc_std_regex=$defaultval])
+
+AM_CONDITIONAL([ENABLE_GCC_STD_REGEX], [test x$enable_gcc_std_regex != xno])
+
 AS_IF([test -n "$CXX"],[AS_IF([$CXX --version 2>&1 | grep 'Free Software Foundation' > /dev/null && test "x$GCC" = "xyes"],
+  [AS_IF([test "x$enable_gcc_std_regex" = "xyes" || test "x$enable_gcc_std_regex" = "xauto"],
     [AC_MSG_CHECKING([for GNU C++11 support level expected by gcc-4.9 release or newer])
      CXXFLAGS="$CXXFLAGS --std=c++11"
      AC_LANG_PUSH([C++])
@@ -1997,9 +2067,12 @@ int main() {
 #endif
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-], AC_MSG_RESULT([ok]), AC_MSG_ERROR([test for std::regex failed]) )
+     ], AC_MSG_RESULT([ok]), AC_MSG_ERROR([test for std::regex failed]) )
      AC_LANG_POP([C++])
     ]
+  ,[AC_MSG_WARN([Not checking for GNU C++11 support level expected by gcc-4.9 release or newer, due to explicit configure option])
+    AC_MSG_WARN([YOU ARE AT RISK OF SOMETHING NOT WORKING WITH THIS BUILD OF THE CODEBASE])]
+  )]
 )])
 
 # Optional project-local hook to (re-)define some variables that can be used

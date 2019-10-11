@@ -34,8 +34,11 @@
 
 #include "shared/configure_inform.h"
 #include "src/db/inout.h"
+#include <fty_asset_activator.h>
 
- </%pre>
+#define AGENT_ASSET_ACTIVATOR "etn-licensing-credits"
+
+</%pre>
 <%request scope="global">
 UserInfo user;
 bool database_ready;
@@ -59,11 +62,12 @@ bool database_ready;
     if (id.empty () || !persist::is_ok_name (id.c_str ()))
         http_die ("request-param-bad", id.c_str ());
 
+    std::string asset_json (request.getBody());
     // Read json, transform to csv, use existing functionality
     cxxtools::SerializationInfo si;
     // read json a deserialize it
     try {
-        std::stringstream input (request.getBody (), std::ios_base::in);
+        std::stringstream input (asset_json, std::ios_base::in);
         cxxtools::JsonDeserializer deserializer (input);
         deserializer.deserialize (si);
         auto si_id = si.findMember("id");
@@ -92,6 +96,28 @@ bool database_ready;
         std::string err = JSONIFY (e.what());
         http_die("bad-request-document", err.c_str ());
     }
+
+    try
+    {
+        fty::FullAsset asset;
+        si >>= asset;
+
+        if (asset.isPowerAsset () && asset.getStatusString() == "active")
+        {
+            mlm::MlmSyncClient client (AGENT_FTY_ASSET, AGENT_ASSET_ACTIVATOR);
+            fty::AssetActivator activationAccessor (client);
+            if (!activationAccessor.isActivable (asset_json))
+            {
+                throw new std::runtime_error ("Asset cannot be activated");
+            }
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::string err = JSONIFY (e.what());
+        http_die ("licensing-err", err.c_str ());
+    }
+
     shared::CsvMap cm;
     try{
         cm = shared::CsvMap_from_serialization_info(si);

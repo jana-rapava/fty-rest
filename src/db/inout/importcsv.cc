@@ -40,6 +40,8 @@
 #include <fty_common_db_dbpath.h>
 #include <fty_common_db.h>
 #include <fty_common_mlm_tntmlm.h>
+#include <fty_common_mlm_sync_client.h>
+#include <fty_asset_activator.h>
 
 #include "../../persist/assetcrud.h"
 #include "cleanup.h"
@@ -47,7 +49,10 @@
 #include "db/dbhelpers.h"
 #include "../inout.h"
 #include "shared/utils.h"
+#include "shared/utils_json.h"
 #include "shared/utilspp.h"
+
+#define AGENT_ASSET_ACTIVATOR "etn-licensing-credits"
 
 using namespace shared;
 
@@ -845,7 +850,7 @@ static std::pair<db_a_elmnt_t, persist::asset_operation>
     unused_columns.erase("sub_type");
 
     // since we have all the data about the asset, licensing check could be done now
-    if (-1 != limitations.max_active_power_devices && "active" == status && TYPES.find("device")->second == type_id) {
+    /*if (-1 != limitations.max_active_power_devices && "active" == status && TYPES.find("device")->second == type_id) {
         std::string db_status = DBAssets::get_status_from_db (conn, id_str);
         // limit applies only to assets that are attempted to be activated, but are disabled in database
         // or to new assets, also may trigger in case of DB failure, but that's fine
@@ -861,7 +866,7 @@ static std::pair<db_a_elmnt_t, persist::asset_operation>
                 bios_throw("action-forbidden", action.c_str (), reason.c_str ());
             }
         }
-    }
+    }*/
 
     // now we have read all basic information about element
     // if id is set, then it is right time to check what is going on in DB
@@ -1249,7 +1254,7 @@ static std::pair<db_a_elmnt_t, persist::asset_operation>
         {
             auto ret = update_device
                 (conn, m.id, iname.c_str(), type_id, parent_id,
-                 extattributes, status.c_str(), priority, groups, links, asset_tag, errmsg, extattributesRO);
+                 extattributes, "nonactive", priority, groups, links, asset_tag, errmsg, extattributesRO);
             if ( ( ret ) || ( !errmsg.empty() ) ) {
                 throw std::invalid_argument(errmsg);
             }
@@ -1278,7 +1283,7 @@ static std::pair<db_a_elmnt_t, persist::asset_operation>
         {
             // this is a transaction
             auto ret = insert_device (conn, links, groups, ename.c_str(),
-                    parent_id, extattributes, subtype_id, subtype.c_str(), status.c_str(),
+                    parent_id, extattributes, subtype_id, subtype.c_str(), "nonactive",
                     priority, asset_tag, extattributesRO);
             if ( ret.status != 1 ) {
                 throw BiosError(ret.rowid, ret.msg);
@@ -1290,6 +1295,24 @@ static std::pair<db_a_elmnt_t, persist::asset_operation>
     if (rv != 0) {
         std::string err = TRANSLATE_ME ("Database failure");
         bios_throw("internal-error", err.c_str ());
+    }
+
+    if (type == "device" && status == "active")
+    {
+        // check if we may activate the device
+         try
+         {
+             std::string asset_json = getJsonAsset (NULL, m.id);
+             mlm::MlmSyncClient client (AGENT_FTY_ASSET, AGENT_ASSET_ACTIVATOR);
+             fty::AssetActivator activationAccessor (client);
+             activationAccessor.activate (asset_json);
+         }
+         catch (const std::exception &e)
+         {
+             std::string err = JSONIFY (e.what());
+             bios_throw ("licensing-err", err.c_str ())
+         }
+
     }
     m.status = status;
     m.parent_id = parent_id;

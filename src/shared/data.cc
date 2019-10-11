@@ -35,6 +35,7 @@
 #include <fty_common_macros.h>
 
 #include "shared/data.h"
+#include "shared/utils_json.h"
 
 #include "../db/asset_general.h"
 
@@ -308,7 +309,16 @@ db_reply_t
             }
             case persist::asset_type::DEVICE:
             {
-                ret = persist::delete_device(conn, id);
+                if (basic_info.item.status == "active")
+                {
+                    //we need device JSON in order to delete active device
+                    std::string asset_json = getJsonAsset (NULL, id);
+                    ret = persist::delete_device(conn, id, asset_json);
+                }
+                else
+                {
+                    ret = persist::delete_device(conn, id);
+                }
                 break;
             }
             default:

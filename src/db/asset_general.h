@@ -111,7 +111,8 @@ db_reply_t
 db_reply_t
     delete_device
         (tntdb::Connection &conn,
-         a_elmnt_id_t element_id);
+         a_elmnt_id_t element_id,
+         const std::string &asset_json="");
 
 
 }   // end namespace

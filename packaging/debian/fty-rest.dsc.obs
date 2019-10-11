@@ -25,6 +25,7 @@ Build-Depends: debhelper (>= 9),
     libsasl2-dev,
     libfty-proto-dev (>= 1.0.0),
     libfty-shm-dev (>= 1.0.0),
+    libfty-asset-activator-dev,
     asciidoc-base | asciidoc, xmlto,
     dh-autoreconf
 

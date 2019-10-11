@@ -75,6 +75,7 @@ BuildRequires:  fty-common-mlm-devel
 BuildRequires:  cyrus-sasl-devel
 BuildRequires:  fty-proto-devel >= 1.0.0
 BuildRequires:  fty_shm-devel >= 1.0.0
+BuildRequires:  fty-asset-activator-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -90,8 +91,6 @@ This package contains shared library for fty-rest: common core rest api for 42it
 %post -n libfty_rest1 -p /sbin/ldconfig
 %postun -n libfty_rest1 -p /sbin/ldconfig
 
-# Note: pathnames below were customized to match the Makefile with legacy paths
-# and the .so file is delivered as part of main package for tntnet to find it
 %files -n libfty_rest1
 %defattr(-,root,root)
 %doc COPYING
@@ -122,6 +121,7 @@ Requires:       fty-common-mlm-devel
 Requires:       cyrus-sasl-devel
 Requires:       fty-proto-devel >= 1.0.0
 Requires:       fty_shm-devel >= 1.0.0
+Requires:       fty-asset-activator-devel
 
 %description devel
 common core rest api for 42ity project development tools
